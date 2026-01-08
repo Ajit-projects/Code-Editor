@@ -3,7 +3,7 @@
 export default {
   providers: [
     {
-      domain: "https://suitable-sunbird-73.clerk.accounts.dev",
+      domain: process.env.CLERK_DOMAIN!,
       applicationID: "convex",
     },
   ]
