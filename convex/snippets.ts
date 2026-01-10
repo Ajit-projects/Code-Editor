@@ -86,11 +86,13 @@ export const starSnippet = mutation({
 
     if (existing) {
       await ctx.db.delete(existing._id);
+      return { status: "unstarred" };
     } else {
       await ctx.db.insert("stars", {
         userId: identity.subject,
         snippetId: args.snippetId,
       });
+      return { status: "starred" };
     }
   },
 });
