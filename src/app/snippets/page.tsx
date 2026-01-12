@@ -5,7 +5,6 @@ import { api } from "../../../convex/_generated/api";
 import { useState } from "react";
 import SnippetsPageSkeleton from "./_components/SnippetsPageSkeleton";
 import NavigationHeader from "@/components/NavigationHeader"
-
 import { AnimatePresence, motion } from "framer-motion";
 import { BookOpen, Code, Grid, Layers, Search, Tag, X } from "lucide-react";
 import SnippetCard from "./_components/SnippetCard";
