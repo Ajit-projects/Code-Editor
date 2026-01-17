@@ -88,7 +88,7 @@ function LanguageSelector({ hasAccess }: { hasAccess: boolean }) {
               <p className="text-xs font-medium text-gray-400">Select Language</p>
             </div>
 
-            <div className="max-h-[280px] overflow-y-auto overflow-x-hidden">
+            <div className="max-h-70 overflow-y-auto overflow-x-hidden">
               {Object.values(LANGUAGE_CONFIG).map((lang, index) => {
                 const isLocked = !hasAccess && lang.id !== "javascript";
 

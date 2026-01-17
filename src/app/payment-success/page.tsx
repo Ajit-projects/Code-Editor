@@ -1,7 +1,6 @@
 "use client";
 
 import NavigationHeader from "@/components/NavigationHeader";
-import { Star } from "lucide-react";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "../../../convex/_generated/api";
@@ -38,10 +37,6 @@ export default function PaymentSuccess() {
             <div className="absolute inset-0 bg-linear-to-br from-blue-500/5 to-purple-500/5 rounded-2xl" />
 
             <div className="relative">
-              <div className="inline-flex p-4 rounded-2xl bg-linear-to-br from-purple-500/10 to-blue-500/10 mb-6 ring-1 ring-gray-800/60">
-                <Star className="w-8 h-8 text-purple-400 animate-pulse" />
-              </div>
-
               <h1 className="text-3xl font-semibold text-white mb-3">
                 Finalizing Your Upgrade
               </h1>

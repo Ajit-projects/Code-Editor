@@ -5,18 +5,30 @@ import { defineMonacoThemes, LANGUAGE_CONFIG } from "../_constants";
 import { Editor } from "@monaco-editor/react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { RotateCcwIcon, ShareIcon, TypeIcon } from "lucide-react";
+import { RotateCcwIcon, ShareIcon, TypeIcon, Lock, Sparkles } from "lucide-react";
 import { useClerk } from "@clerk/nextjs";
 import { EditorPanelSkeleton } from "./EditorPanelSkeleton";
 import useMounted from "@/hooks/useMounted";
 import ShareSnippetDialog from "./ShareSnippetDialog";
+import { api } from "../../../../convex/_generated/api"
+import { useQuery } from "convex/react";
+import AIAnalysisModal from "./AIAnalysisModal";
 
 function EditorPanel() {
   const clerk = useClerk();
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<string | null>(null);
   const { language, theme, fontSize, editor, setFontSize, setEditor } = useCodeEditorStore();
 
   const mounted = useMounted();
+  const { user } = clerk;
+
+  const dbUser = useQuery(api.users.getUser, {
+    userId: user?.id ?? "",
+  });
+
+  const isPro = dbUser?.isPro;
 
   useEffect(() => {
     const savedCode = localStorage.getItem(`editor-code-${language}`);
@@ -44,6 +56,38 @@ function EditorPanel() {
     setFontSize(size);
     localStorage.setItem("editor-font-size", size.toString());
   };
+
+  const handleAnalyze = async () => {
+  if (!isPro || !editor) return;
+
+  const code = editor.getValue();
+  if (!code.trim()) {
+    alert("Write some code first");
+    return;
+  }
+
+  setIsAnalyzing(true);
+
+  try {
+    const res = await fetch("/api/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Something went wrong");
+    }
+
+    setAnalysisResult(data.analysis);
+  } catch {
+    alert("Failed to analyze code");
+  } finally {
+    setIsAnalyzing(false);
+  }
+};
 
   if (!mounted) return null;
 
@@ -89,8 +133,30 @@ function EditorPanel() {
             >
               <RotateCcwIcon className="size-4 text-gray-400" />
             </motion.button>
-
-            {/* Share Button */}
+            {/* Analyze with AI */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleAnalyze}
+              disabled={!isPro || isAnalyzing}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg overflow-hidden bg-linear-to-r
+               from-blue-500 to-blue-600 opacity-90 hover:opacity-100 transition-opacity cursor-pointer`}
+            >
+              {isPro ? (
+                <>
+                <Sparkles className="size-4 text-gray-300" />
+                <span className="text-white text-sm font-medium">
+                  {isAnalyzing ? "Analyzing..." : "AI Analysis"}
+                </span>
+                </>
+              ) : (
+                <>
+                  <Lock className="size-4 text-gray-300" />
+                  <span className="text-gray-300 text-sm">AI Analysis</span>
+                </>
+              )}
+            </motion.button>
+            {/* Share */}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -142,6 +208,12 @@ function EditorPanel() {
         </div>
       </div>
       {isShareDialogOpen && <ShareSnippetDialog onClose={() => setIsShareDialogOpen(false)} />}
+      {analysisResult && (
+        <AIAnalysisModal
+          result={analysisResult}
+          onClose={() => setAnalysisResult(null)}
+        />
+      )}
     </div>
   );
 }
