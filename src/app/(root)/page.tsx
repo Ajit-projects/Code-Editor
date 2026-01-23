@@ -3,19 +3,21 @@ import OutputPanel from "./_components/OutputPanel";
 import Header from "./_components/Header";
 
 export default function Home() {
-  
   return (
-    <div className="min-h-screen">
-      <div className="max-w-[1800px] mx-auto p-4">
+    <div className="min-h-dvh bg-background">
+      <div className="mx-auto max-w-[1800px] px-3 py-4 sm:px-4">
         <Header />
 
-        <div className="grid grid-cols-1 min-[1024px]:grid-cols-2 gap-4">
-          {/* Reserve Editor space until it's ready */}
-          <div className="min-h-[500px]"> 
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Editor */}
+          <div className="h-[60vh] sm:h-[500px] lg:h-[calc(100vh-140px)]">
             <EditorPanel />
           </div>
 
-          <OutputPanel />
+          {/* Output */}
+          <div className="min-h-[40vh] lg:min-h-[calc(100vh-140px)]">
+            <OutputPanel />
+          </div>
         </div>
       </div>
     </div>

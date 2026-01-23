@@ -174,7 +174,8 @@ function EditorPanel() {
         <div className="relative group rounded-xl overflow-hidden ring-1 ring-white/5">
           {clerk.loaded && (
             <Editor
-              height="600px"
+              height="100%"
+              width="100%"
               language={LANGUAGE_CONFIG[language].monacoLanguage}
               onChange={handleEditorChange}
               theme={theme}
