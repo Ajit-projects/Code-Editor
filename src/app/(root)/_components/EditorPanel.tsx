@@ -92,10 +92,10 @@ function EditorPanel() {
   if (!mounted) return null;
 
   return (
-    <div className="relative">
-      <div className="relative bg-[#12121a]/90 backdrop-blur rounded-xl border border-white/5 p-6">
+    <div className="relative h-full min-h-[400px] flex flex-col">
+      <div className="relative bg-[#12121a]/90 backdrop-blur rounded-xl border border-white/5 p-6 h-full flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 shrink-0">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#1e1e2e] ring-1 ring-white/5">
               <Image src={"/" + language + ".png"} alt="Logo" width={24} height={24} />
@@ -171,7 +171,7 @@ function EditorPanel() {
         </div>
 
         {/* Editor  */}
-        <div className="relative group rounded-xl overflow-hidden ring-1 ring-white/5">
+        <div className="relative flex-1 min-h-0 group rounded-xl overflow-hidden ring-1 ring-white/5">
           {clerk.loaded && (
             <Editor
               height="100%"
