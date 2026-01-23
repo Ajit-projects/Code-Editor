@@ -194,7 +194,6 @@ function EditorPanel() {
                 smoothScrolling: true,
                 contextmenu: true,
                 renderLineHighlight: "all",
-                lineHeight: 1.6,
                 letterSpacing: 0.5,
                 roundedSelection: true,
                 scrollbar: {
