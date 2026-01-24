@@ -20,9 +20,60 @@ async function Header() {
   return (
     <div className="relative z-10">
       <div
-        className="flex items-center lg:justify-between justify-center 
-        bg-[#0a0a0f]/80 backdrop-blur-xl p-6 mb-4 rounded-lg"
+        className="relative flex flex-wrap items-center justify-between bg-[#0a0a0f]/80 backdrop-blur-xl px-3 py-3 sm:p-6
+        mb-4 rounded-lg gap-3 overflow-visible sm:px-6 sm:py-4"
       >
+        {/* MOBILE HEADER */}
+        <div className="flex w-full flex-col gap-3 lg:hidden">
+          {/* Top row */}
+          <div className="flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2 shrink-0">
+              <Blocks className="size-5 text-blue-400" />
+              <span className="text-sm font-semibold text-blue-400 whitespace-nowrap">
+                Code Editor
+              </span>
+               <span className="block text-xs text-blue-400/60 font-medium mr-1">
+                Interactive Coding Platform
+              </span>
+            </Link>
+          </div>
+          <div className="flex items-center gap-2 overflow-x-auto">
+            <Link
+              href="/snippets"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-gray-300 bg-gray-800/50 border
+               border-gray-800 shrink-0"
+            >
+              <Code2 className="w-4 h-4" />
+              Snippets
+            </Link>
+
+            {!convexUser?.isPro && (
+              <Link
+                href="/pricing"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm border border-amber-500/20 bg-amber-500/10 
+                shrink-0"
+              >
+                <Sparkles className="w-4 h-4 text-amber-400" />
+                Pro
+              </Link>
+            )}
+
+            <SignedIn>
+              <RunButton />
+            </SignedIn>
+
+            <div className="pl-3 border-l border-gray-800 cursor-pointer">
+              <HeaderProfileBtn />
+            </div>
+          </div>
+
+          {/* Bottom row (navigation) */}
+          <div className="relative z-50 flex items-center gap-2 px-0.5 overflow-y-visible">
+             <ThemeSelector />
+            <LanguageSelector hasAccess={Boolean(convexUser?.isPro)} />
+          </div>
+        </div>
+
         <div className="hidden lg:flex items-center gap-8">
           <Link href="/" className="flex items-center gap-3 group relative">
             {/* Logo hover effect */}
@@ -72,7 +123,7 @@ async function Header() {
           </nav>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="hidden lg:flex items-center gap-4 w-full lg:w-auto justify-end">
           <div className="flex items-center gap-3">
             <ThemeSelector />
             <LanguageSelector hasAccess={Boolean(convexUser?.isPro)} />

@@ -92,8 +92,8 @@ function EditorPanel() {
   if (!mounted) return null;
 
   return (
-    <div className="relative h-full min-h-[400px] flex flex-col">
-      <div className="relative bg-[#12121a]/90 backdrop-blur rounded-xl border border-white/5 p-6 h-full flex flex-col">
+    <div className="relative h-full flex flex-col min-h-0 w-full">
+      <div className="relative bg-[#12121a]/90 backdrop-blur rounded-xl border border-white/5 p-4 sm:p-6 h-full flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between mb-4 shrink-0">
           <div className="flex items-center gap-3">
@@ -105,7 +105,7 @@ function EditorPanel() {
               <p className="text-xs text-gray-500">Write and execute your code</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {/* Font Size Slider */}
             <div className="flex items-center gap-3 px-3 py-2 bg-[#1e1e2e] rounded-lg ring-1 ring-white/5">
               <TypeIcon className="size-4 text-gray-400" />
@@ -139,20 +139,22 @@ function EditorPanel() {
               whileTap={{ scale: 0.98 }}
               onClick={handleAnalyze}
               disabled={!isPro || isAnalyzing}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg overflow-hidden bg-linear-to-r
-               from-blue-500 to-blue-600 opacity-90 hover:opacity-100 transition-opacity cursor-pointer`}
+              className="inline-flex items-center gap-2 px-3 py-2 sm:px-4 rounded-lg bg-linear-to-r from-blue-500 to-blue-600 
+              opacity-90 hover:opacity-100 transition-opacity"
             >
               {isPro ? (
                 <>
-                <Sparkles className="size-4 text-gray-300" />
-                <span className="text-white text-sm font-medium">
-                  {isAnalyzing ? "Analyzing..." : "AI Analysis"}
-                </span>
+                  <Sparkles className="hidden sm:inline size-4 text-gray-300" />
+                  <span className="hidden sm:inline text-white text-sm font-medium">
+                    {isAnalyzing ? "Analyzing..." : "AI Analysis"}
+                  </span>
+                  <span className="lg:hidden text-white text-sm font-medium">AI</span>
                 </>
               ) : (
                 <>
-                  <Lock className="size-4 text-gray-300" />
-                  <span className="text-gray-300 text-sm">AI Analysis</span>
+                  <Lock className="hidden sm:inline size-4 text-gray-300" />
+                  <span className="hidden sm:inline text-gray-300 text-sm">AI Analysis</span>
+                  <span className="lg:hidden sm:inline text-gray-300 text-sm">AI</span>
                 </>
               )}
             </motion.button>
@@ -161,17 +163,19 @@ function EditorPanel() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setIsShareDialogOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg overflow-hidden bg-linear-to-r
-               from-blue-500 to-blue-600 opacity-90 hover:opacity-100 transition-opacity"
+              className="inline-flex items-center gap-2 px-3 py-2 sm:px-4 rounded-lg bg-linear-to-r from-blue-500 to-blue-600 
+              opacity-90 hover:opacity-100 transition-opacity"
             >
               <ShareIcon className="size-4 text-white" />
-              <span className="text-sm font-medium text-white cursor-pointer">Share</span>
+              <span className="hidden sm:inline text-sm font-medium text-white">
+                Share
+              </span>
             </motion.button>
           </div>
         </div>
 
         {/* Editor  */}
-        <div className="relative flex-1 min-h-0 group rounded-xl overflow-hidden ring-1 ring-white/5">
+        <div className="relative flex-1 min-h-0 group rounded-xl overflow-hidden ring-1 ring-white/5 lg:overhidden">
           {clerk.loaded && (
             <Editor
               height="100%"
