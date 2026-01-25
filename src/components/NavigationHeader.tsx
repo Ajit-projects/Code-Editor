@@ -6,9 +6,9 @@ import Link from "next/link";
 function NavigationHeader() {
   return (
     <div className="sticky top-0 z-50 w-full border-b border-gray-800/50 bg-gray-950/80 backdrop-blur-xl backdrop-saturate-150 mt-3">
-      <div className="absolute inset-0 bg-linear-to-r from-blue-500/5 to-purple-500/5" />
-      <div className="max-w-7xl mx-auto px-4">
-        {/*MOBILE HEADER*/}
+      <div className="absolute inset-0 pointer-events-none bg-linear-to-r from-blue-500/5 to-purple-500/5" />
+      <div className="relative z-10 max-w-7xl mx-auto px-4">
+        {/* MOBILE HEADER */}
         <div className="md:hidden flex flex-col gap-3 py-3">
           {/* Row 1: Logo + Profile */}
           <div className="flex items-center justify-between">
