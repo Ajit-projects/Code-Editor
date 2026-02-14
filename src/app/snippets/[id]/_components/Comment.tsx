@@ -70,7 +70,11 @@ function Comment({
           </div>
 
           {isOwner && !isEditing && (
-            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+            <div className="flex items-center gap-2
+                opacity-70
+                sm:opacity-0
+                sm:group-hover:opacity-100
+                transition-all">
               <button
                 onClick={() => setIsEditing(true)}
                 className="p-2 hover:bg-blue-500/10 rounded-lg"
