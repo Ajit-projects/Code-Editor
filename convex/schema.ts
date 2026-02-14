@@ -34,6 +34,7 @@ export default defineSchema ({
         userId: v.string(),
         userName: v.string(),
         content: v.string(), // This will store HTML content
+        updatedAt: v.optional(v.number())
     }).index("by_snippet_id", ["snippetId"]),
 
     stars: defineTable({

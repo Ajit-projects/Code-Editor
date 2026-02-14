@@ -124,6 +124,30 @@ export const addComment = mutation({
   },
 });
 
+export const updateComment = mutation({
+  args: {
+    commentId: v.id("snippetComments"),
+    content: v.string(),
+  },
+
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+
+    const comment = await ctx.db.get(args.commentId);
+    if (!comment) throw new Error("Comment not found");
+
+    if (comment.userId !== identity.subject) {
+      throw new Error("Not authorized to edit this comment");
+    }
+    
+    await ctx.db.patch(args.commentId, {
+      content: args.content,
+      updatedAt: Date.now(),
+    });
+  },
+});
+
 export const deleteComment = mutation({
   args: { commentId: v.id("snippetComments") },
   handler: async (ctx, args) => {

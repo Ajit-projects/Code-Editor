@@ -12,10 +12,12 @@ function Comments({ snippetId }: { snippetId: Id<"snippets"> }) {
   const { user } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletinCommentId, setDeletingCommentId] = useState<string | null>(null);
+  const [updatingCommentId, setUpdatingCommentId] = useState<string | null>(null);
 
   const comments = useQuery(api.snippets.getComments, { snippetId }) || [];
   const addComment = useMutation(api.snippets.addComment);
   const deleteComment = useMutation(api.snippets.deleteComment);
+  const updateComment = useMutation(api.snippets.updateComment);
 
   const handleSubmitComment = async (content: string) => {
     setIsSubmitting(true);
@@ -24,7 +26,7 @@ function Comments({ snippetId }: { snippetId: Id<"snippets"> }) {
       await addComment({ snippetId, content });
       toast.success("Comment added sucessfully");
     } catch (error) {
-      console.log("Error adding comment:", error);
+      console.log("Error adding comment");
       toast.error("Something went wrong");
     } finally {
       setIsSubmitting(false);
@@ -38,10 +40,26 @@ function Comments({ snippetId }: { snippetId: Id<"snippets"> }) {
       await deleteComment({ commentId });
       toast.success("Comment deleted successfully");
     } catch (error) {
-      console.log("Error deleting comment:", error);
+      console.log("Error deleting comment");
       toast.error("Something went wrong");
     } finally {
       setDeletingCommentId(null);
+    }
+  };
+
+  const handleUpdateComment = async (
+    commentId: Id<"snippetComments">,
+    content: string
+  ) => {
+    setUpdatingCommentId(commentId);
+    try {
+      await updateComment({ commentId, content });
+      toast.success("Comment updated successfully");
+    } catch {
+      console.log("Error updating comment");
+      toast.error("Something went wrong");
+    } finally {
+      setUpdatingCommentId(null);
     }
   };
 
@@ -74,7 +92,9 @@ function Comments({ snippetId }: { snippetId: Id<"snippets"> }) {
               key={comment._id}
               comment={comment}
               onDelete={handleDeleteComment}
+              onUpdate={handleUpdateComment}
               isDeleting={deletinCommentId === comment._id}
+              isUpdating={updatingCommentId === comment._id}
               currentUserId={user?.id}
             />
           ))}
