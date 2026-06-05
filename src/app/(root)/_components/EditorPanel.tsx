@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 const BUTTON_STYLES = "inline-flex items-center gap-2 px-3 py-2 sm:px-4 rounded-lg bg-linear-to-r from-blue-500 to-blue-600 opacity-90 hover:opacity-100 transition-opacity"
 
@@ -33,6 +34,7 @@ function EditorPanel() {
   const router = useRouter();
 
   const mounted = useMounted();
+  const isMobile = useIsMobile();
   const { user } = clerk;
 
   const dbUser = useQuery(api.users.getUser, {
@@ -132,6 +134,53 @@ function EditorPanel() {
     setIsShareDialogOpen(true);
   };
 
+  const aiButton = (
+    <motion.button
+      disabled={isAnalyzing}
+      whileHover={isAnalyzing ? undefined : { scale: 1.02 }}
+      whileTap={isAnalyzing ? undefined : { scale: 0.98 }}
+      onClick={handleAIButtonClick}
+      className={`${BUTTON_STYLES} ${isAnalyzing ? "cursor-not-allowed opacity-70" : ""
+        }`}
+    >
+      {isPro ? (
+        <>
+          <Sparkles className="hidden sm:inline size-4 text-gray-300" />
+          <span className="hidden sm:inline text-white text-sm font-medium">
+            {isAnalyzing ? "Analyzing..." : "AI Analysis"}
+          </span>
+          <span className="lg:hidden text-white text-sm font-medium">
+            AI
+          </span>
+        </>
+      ) : (
+        <>
+          <Lock className="hidden sm:inline size-4 text-gray-300" />
+          <span className="hidden sm:inline text-gray-300 text-sm">
+            AI Analysis
+          </span>
+          <span className="lg:hidden sm:inline text-gray-300 text-sm">
+            AI
+          </span>
+        </>
+      )}
+    </motion.button>
+  );
+
+  const shareButton = (
+    <motion.button
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      onClick={handleShareClick}
+      className={BUTTON_STYLES}
+    >
+      <ShareIcon className="size-4 text-white" />
+      <span className="hidden sm:inline text-sm font-medium text-white">
+        Share
+      </span>
+    </motion.button>
+  );
+
   if (!mounted) return null;
 
   return (
@@ -178,70 +227,39 @@ function EditorPanel() {
             </motion.button>
             {/* Analyze with AI */}
             <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <motion.button
-                    disabled={isAnalyzing}
-                    whileHover={isAnalyzing ? undefined : { scale: 1.02 }}
-                    whileTap={isAnalyzing ? undefined : { scale: 0.98 }}
-                    onClick={handleAIButtonClick}
-                    className={`${BUTTON_STYLES} ${isAnalyzing ? "cursor-not-allowed opacity-70" : ""
-                      }`}
-                  >
-                    {isPro ? (
-                      <>
-                        <Sparkles className="hidden sm:inline size-4 text-gray-300" />
-                        <span className="hidden sm:inline text-white text-sm font-medium">
-                          {isAnalyzing ? "Analyzing..." : "AI Analysis"}
-                        </span>
-                        <span className="lg:hidden text-white text-sm font-medium">
-                          AI
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <Lock className="hidden sm:inline size-4 text-gray-300" />
-                        <span className="hidden sm:inline text-gray-300 text-sm">
-                          AI Analysis
-                        </span>
-                        <span className="lg:hidden sm:inline text-gray-300 text-sm">
-                          AI
-                        </span>
-                      </>
-                    )}
-                  </motion.button>
-                </TooltipTrigger>
+              {isMobile ? (
+                aiButton
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    {aiButton}
+                  </TooltipTrigger>
 
-                {!canUseAIAnalysis && (
-                  <TooltipContent>
-                    {!isLoggedIn
-                      ? "Sign in to use AI Analysis"
-                      : "AI Analysis is available on the Pro plan"}
-                  </TooltipContent>
-                )}
-              </Tooltip>
+                  {!canUseAIAnalysis && (
+                    <TooltipContent>
+                      {!isLoggedIn
+                        ? "Sign in to use AI Analysis"
+                        : "AI Analysis is available on the Pro plan"}
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              )}
               {/* Share */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleShareClick}
-                    className={BUTTON_STYLES}
-                  >
-                    <ShareIcon className="size-4 text-white" />
-                    <span className="hidden sm:inline text-sm font-medium text-white">
-                      Share
-                    </span>
-                  </motion.button>
-                </TooltipTrigger>
+              {isMobile ? (
+                shareButton
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    {shareButton}
+                  </TooltipTrigger>
 
-                {!canShare && (
-                  <TooltipContent>
-                    Sign in to share snippets
-                  </TooltipContent>
-                )}
-              </Tooltip>
+                  {!canShare && (
+                    <TooltipContent>
+                      Sign in to share snippets
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              )}
             </TooltipProvider>
           </div>
         </div>
