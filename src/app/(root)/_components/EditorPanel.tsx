@@ -13,6 +13,16 @@ import ShareSnippetDialog from "./ShareSnippetDialog";
 import { api } from "../../../../convex/_generated/api"
 import { useQuery } from "convex/react";
 import AIAnalysisModal from "./AIAnalysisModal";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+
+const BUTTON_STYLES = "inline-flex items-center gap-2 px-3 py-2 sm:px-4 rounded-lg bg-linear-to-r from-blue-500 to-blue-600 opacity-90 hover:opacity-100 transition-opacity"
 
 function EditorPanel() {
   const clerk = useClerk();
@@ -20,6 +30,7 @@ function EditorPanel() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<string | null>(null);
   const { language, theme, fontSize, editor, setFontSize, setEditor } = useCodeEditorStore();
+  const router = useRouter();
 
   const mounted = useMounted();
   const { user } = clerk;
@@ -28,7 +39,14 @@ function EditorPanel() {
     userId: user?.id ?? "",
   });
 
-  const isPro = dbUser?.isPro;
+  const isPro = !!dbUser?.isPro;
+
+  const isLoggedIn = clerk.loaded && !!user;
+
+  const isUserLoading = dbUser === undefined && isLoggedIn;
+
+  const canUseAIAnalysis = !isUserLoading && isLoggedIn && isPro;
+  const canShare = isLoggedIn;
 
   useEffect(() => {
     const savedCode = localStorage.getItem(`editor-code-${language}`);
@@ -58,36 +76,61 @@ function EditorPanel() {
   };
 
   const handleAnalyze = async () => {
-  if (!isPro || !editor) return;
+    if (!isPro || !editor) return;
 
-  const code = editor.getValue();
-  if (!code.trim()) {
-    alert("Write some code first");
-    return;
-  }
-
-  setIsAnalyzing(true);
-
-  try {
-    const res = await fetch("/api/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.error || "Something went wrong");
+    const code = editor.getValue();
+    if (!code.trim()) {
+      toast.error("Write some code before running AI Analysis");
+      return;
     }
 
-    setAnalysisResult(data.analysis);
-  } catch {
-    alert("Failed to analyze code");
-  } finally {
-    setIsAnalyzing(false);
-  }
-};
+    setIsAnalyzing(true);
+
+    try {
+      const res = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
+
+      setAnalysisResult(data.analysis);
+    } catch {
+      toast.error("Failed to analyze code");
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const handleAIButtonClick = () => {
+    if (isAnalyzing) return;
+
+    if (!isLoggedIn) {
+      clerk.openSignIn();
+      return;
+    }
+
+    if (!isPro) {
+      router.push("/pricing");
+      return;
+    }
+
+    handleAnalyze();
+  };
+
+  const handleShareClick = () => {
+    if (!isLoggedIn) {
+      clerk.openSignIn();
+      return;
+    }
+
+    setIsShareDialogOpen(true);
+  };
 
   if (!mounted) return null;
 
@@ -134,48 +177,77 @@ function EditorPanel() {
               <RotateCcwIcon className="size-4 text-gray-400" />
             </motion.button>
             {/* Analyze with AI */}
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleAnalyze}
-              disabled={!isPro || isAnalyzing}
-              className="inline-flex items-center gap-2 px-3 py-2 sm:px-4 rounded-lg bg-linear-to-r from-blue-500 to-blue-600 
-              opacity-90 hover:opacity-100 transition-opacity"
-            >
-              {isPro ? (
-                <>
-                  <Sparkles className="hidden sm:inline size-4 text-gray-300" />
-                  <span className="hidden sm:inline text-white text-sm font-medium">
-                    {isAnalyzing ? "Analyzing..." : "AI Analysis"}
-                  </span>
-                  <span className="lg:hidden text-white text-sm font-medium">AI</span>
-                </>
-              ) : (
-                <>
-                  <Lock className="hidden sm:inline size-4 text-gray-300" />
-                  <span className="hidden sm:inline text-gray-300 text-sm">AI Analysis</span>
-                  <span className="lg:hidden sm:inline text-gray-300 text-sm">AI</span>
-                </>
-              )}
-            </motion.button>
-            {/* Share */}
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setIsShareDialogOpen(true)}
-              className="inline-flex items-center gap-2 px-3 py-2 sm:px-4 rounded-lg bg-linear-to-r from-blue-500 to-blue-600 
-              opacity-90 hover:opacity-100 transition-opacity"
-            >
-              <ShareIcon className="size-4 text-white" />
-              <span className="hidden sm:inline text-sm font-medium text-white">
-                Share
-              </span>
-            </motion.button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <motion.button
+                    disabled={isAnalyzing}
+                    whileHover={isAnalyzing ? undefined : { scale: 1.02 }}
+                    whileTap={isAnalyzing ? undefined : { scale: 0.98 }}
+                    onClick={handleAIButtonClick}
+                    className={`${BUTTON_STYLES} ${isAnalyzing ? "cursor-not-allowed opacity-70" : ""
+                      }`}
+                  >
+                    {isPro ? (
+                      <>
+                        <Sparkles className="hidden sm:inline size-4 text-gray-300" />
+                        <span className="hidden sm:inline text-white text-sm font-medium">
+                          {isAnalyzing ? "Analyzing..." : "AI Analysis"}
+                        </span>
+                        <span className="lg:hidden text-white text-sm font-medium">
+                          AI
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="hidden sm:inline size-4 text-gray-300" />
+                        <span className="hidden sm:inline text-gray-300 text-sm">
+                          AI Analysis
+                        </span>
+                        <span className="lg:hidden sm:inline text-gray-300 text-sm">
+                          AI
+                        </span>
+                      </>
+                    )}
+                  </motion.button>
+                </TooltipTrigger>
+
+                {!canUseAIAnalysis && (
+                  <TooltipContent>
+                    {!isLoggedIn
+                      ? "Sign in to use AI Analysis"
+                      : "AI Analysis is available on the Pro plan"}
+                  </TooltipContent>
+                )}
+              </Tooltip>
+              {/* Share */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleShareClick}
+                    className={BUTTON_STYLES}
+                  >
+                    <ShareIcon className="size-4 text-white" />
+                    <span className="hidden sm:inline text-sm font-medium text-white">
+                      Share
+                    </span>
+                  </motion.button>
+                </TooltipTrigger>
+
+                {!canShare && (
+                  <TooltipContent>
+                    Sign in to share snippets
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
 
         {/* Editor  */}
-        <div className="relative flex-1 min-h-0 group rounded-xl overflow-hidden ring-1 ring-white/5 lg:overhidden">
+        <div className="relative flex-1 min-h-0 group rounded-xl overflow-hidden ring-1 ring-white/5">
           {clerk.loaded && (
             <Editor
               height="100%"
