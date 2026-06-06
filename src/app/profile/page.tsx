@@ -32,9 +32,7 @@ function ProfilePage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"executions" | "starred">("executions");
 
-  const userStats = useQuery(api.codeExecutions.getUserStats, {
-    userId: user?.id ?? "",
-  });
+  const userStats = useQuery(api.codeExecutions.getUserStats);
 
   const starredSnippets = useQuery(api.snippets.getStarredSnippets);
 
@@ -45,13 +43,11 @@ function ProfilePage() {
     loadMore,
   } = usePaginatedQuery(
     api.codeExecutions.getUserExecutions,
-    {
-      userId: user?.id ?? "",
-    },
+    {},
     { initialNumItems: 3}
   );
 
-  const userData = useQuery(api.users.getUser, { userId: user?.id ?? "" });
+  const userData = useQuery(api.users.getCurrentUser);
 
   const handleLoadMore = () => {
     if (executionStatus === "CanLoadMore") loadMore(5);

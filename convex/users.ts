@@ -24,16 +24,15 @@ export const syncUser = mutation({
   },
 });
 
-export const getUser = query({
-  args: { userId: v.string() },
-
-  handler: async (ctx, args) => {
-    if (!args.userId) return null;
+export const getCurrentUser = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return null;
 
     const user = await ctx.db
       .query("users")
       .withIndex("by_user_id")
-      .filter((q) => q.eq(q.field("userId"), args.userId))
+      .filter((q) => q.eq(q.field("userId"), identity.subject))
       .first();
 
     if (!user) return null;

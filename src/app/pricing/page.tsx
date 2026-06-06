@@ -14,9 +14,7 @@ import LoginButton from "@/components/LoginButton";
 async function PricingPage() {
   const user = await currentUser();
   const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
-  const convexUser = await convex.query(api.users.getUser, {
-    userId: user?.id || "",
-  });
+  const convexUser = await convex.query(api.users.getCurrentUser);
 
   if (convexUser?.isPro) return <ProPlanView />;
 

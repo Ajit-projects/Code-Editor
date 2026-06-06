@@ -11,9 +11,7 @@ export default function PaymentSuccess() {
   const router = useRouter();
   const { user } = useUser();
 
-  const dbuser = useQuery(api.users.getUser, {
-    userId: user?.id ?? "",
-  });
+  const dbuser = useQuery(api.users.getCurrentUser);
 
   useEffect(() => {
     if (dbuser?.isPro) {

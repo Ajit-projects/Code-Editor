@@ -37,9 +37,7 @@ function EditorPanel() {
   const isMobile = useIsMobile();
   const { user } = clerk;
 
-  const dbUser = useQuery(api.users.getUser, {
-    userId: user?.id ?? "",
-  });
+  const dbUser = useQuery(api.users.getCurrentUser);
 
   const isPro = !!dbUser?.isPro;
 
