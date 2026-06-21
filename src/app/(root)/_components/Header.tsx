@@ -1,5 +1,4 @@
-import { currentUser } from "@clerk/nextjs/server";
-import { ConvexHttpClient } from "convex/browser";
+"use client";
 import { api } from "../../../../convex/_generated/api";
 import Link from "next/link";
 import { Blocks, Code2, Sparkles } from "lucide-react";
@@ -8,12 +7,11 @@ import ThemeSelector from "./ThemeSelector";
 import LanguageSelector from "./LanguageSelector";
 import RunButton from "./RunButton";
 import HeaderProfileBtn from "./HeaderProfileBtn";
+import { useQuery } from "convex/react";
 
-async function Header() {
-  const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
-  const user = await currentUser();
+function Header() {
 
-  const convexUser = await convex.query(api.users.getCurrentUser);
+  const currentUser = useQuery(api.users.getCurrentUser);
 
   return (
     <div className="relative z-10">
@@ -30,7 +28,7 @@ async function Header() {
               <span className="text-sm font-semibold text-blue-400 whitespace-nowrap">
                 Code Editor
               </span>
-               <span className="block text-xs text-blue-400/60 font-medium mr-1">
+              <span className="block text-xs text-blue-400/60 font-medium mr-1">
                 Interactive Coding Platform
               </span>
             </Link>
@@ -45,7 +43,7 @@ async function Header() {
               Snippets
             </Link>
 
-            {!convexUser?.isPro && (
+            {!currentUser?.isPro && (
               <Link
                 href="/pricing"
                 className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm border border-amber-500/20 bg-amber-500/10 
@@ -67,8 +65,8 @@ async function Header() {
 
           {/* Bottom row (navigation) */}
           <div className="relative z-50 flex items-center gap-2 px-0.5 overflow-y-visible">
-             <ThemeSelector />
-            <LanguageSelector hasAccess={Boolean(convexUser?.isPro)} />
+            <ThemeSelector />
+            <LanguageSelector hasAccess={Boolean(currentUser?.isPro)} />
           </div>
         </div>
 
@@ -124,10 +122,10 @@ async function Header() {
         <div className="hidden lg:flex items-center gap-4 w-full lg:w-auto justify-end">
           <div className="flex items-center gap-3">
             <ThemeSelector />
-            <LanguageSelector hasAccess={Boolean(convexUser?.isPro)} />
+            <LanguageSelector hasAccess={Boolean(currentUser?.isPro)} />
           </div>
 
-          {!convexUser?.isPro && (
+          {!currentUser?.isPro && (
             <Link
               href="/pricing"
               className="flex items-center gap-2 px-4 py-1.5 rounded-lg border border-amber-500/20 hover:border-amber-500/40 bg-linear-to-r from-amber-500/10 
