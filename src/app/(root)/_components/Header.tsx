@@ -12,6 +12,8 @@ import { useQuery } from "convex/react";
 function Header() {
 
   const currentUser = useQuery(api.users.getCurrentUser);
+  const isLoadingUser = currentUser === undefined;
+  const isPro = !!currentUser?.isPro;
 
   return (
     <div className="relative z-10">
@@ -43,7 +45,7 @@ function Header() {
               Snippets
             </Link>
 
-            {!currentUser?.isPro && (
+            {!isLoadingUser && !isPro && (
               <Link
                 href="/pricing"
                 className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm border border-amber-500/20 bg-amber-500/10 
@@ -66,7 +68,7 @@ function Header() {
           {/* Bottom row (navigation) */}
           <div className="relative z-50 flex items-center gap-2 px-0.5 overflow-y-visible">
             <ThemeSelector />
-            <LanguageSelector hasAccess={Boolean(currentUser?.isPro)} />
+            <LanguageSelector hasAccess={Boolean(isPro)} />
           </div>
         </div>
 
@@ -122,10 +124,10 @@ function Header() {
         <div className="hidden lg:flex items-center gap-4 w-full lg:w-auto justify-end">
           <div className="flex items-center gap-3">
             <ThemeSelector />
-            <LanguageSelector hasAccess={Boolean(currentUser?.isPro)} />
+            <LanguageSelector hasAccess={Boolean(isPro)} />
           </div>
 
-          {!currentUser?.isPro && (
+          {!isLoadingUser && !isPro && (
             <Link
               href="/pricing"
               className="flex items-center gap-2 px-4 py-1.5 rounded-lg border border-amber-500/20 hover:border-amber-500/40 bg-linear-to-r from-amber-500/10 

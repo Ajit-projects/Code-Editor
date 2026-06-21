@@ -4,20 +4,19 @@ import NavigationHeader from "@/components/NavigationHeader";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "../../../convex/_generated/api";
-import { useUser } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 
 export default function PaymentSuccess() {
   const router = useRouter();
-  const { user } = useUser();
 
   const dbuser = useQuery(api.users.getCurrentUser);
+  const isPro = !!dbuser?.isPro;
 
   useEffect(() => {
-    if (dbuser?.isPro) {
-      router.push("/");
+    if (isPro) {
+      router.replace("/");
     }
-  }, [dbuser, router]);
+  }, [isPro, router]);
 
   return (
     <div className="bg-[#0a0a0f] min-h-screen">
@@ -40,7 +39,7 @@ export default function PaymentSuccess() {
               </h1>
 
               <p className="text-gray-400 mb-8 text-lg">
-                Your Pro features are being activated.  
+                Your Pro features are being activated.
                 Hang tight… 🚀
               </p>
             </div>

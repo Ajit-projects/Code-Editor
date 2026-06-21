@@ -1,5 +1,4 @@
-import { currentUser } from "@clerk/nextjs/server";
-import { ConvexHttpClient } from "convex/browser";
+"use client";
 import { api } from "../../../convex/_generated/api";
 import ProPlanView from "./_components/ProPlanView";
 import NavigationHeader from "@/components/NavigationHeader";
@@ -10,13 +9,23 @@ import FeatureItem from "./_components/FeatureItem";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 import UpgradeButton from "./_components/UpgradeButton";
 import LoginButton from "@/components/LoginButton";
+import { useQuery } from "convex/react";
 
-async function PricingPage() {
-  const user = await currentUser();
-  const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
-  const convexUser = await convex.query(api.users.getCurrentUser);
+function PricingPage() {
 
-  if (convexUser?.isPro) return <ProPlanView />;
+  const currentUser = useQuery(api.users.getCurrentUser);
+  const isLoadingUser = currentUser === undefined;
+  const isPro = !!currentUser?.isPro;
+
+  if (isLoadingUser) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f]">
+        <NavigationHeader />
+      </div>
+    );
+  }
+
+  if (isPro) return <ProPlanView />;
 
   return (
     <div
