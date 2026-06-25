@@ -2,8 +2,8 @@
 
 Highlights:
 
-- 🚀 Tech stack: Next.js 16 + Convex + Clerk + TypeScript
-- 💻 Online IDE with multi-language support (10 languages)
+- 🚀 Tech stack: Next.js + Convex + Clerk + TypeScript
+- 💻 Online IDE with multi-language support
 - 🎨 Customizable experience with 4 VSCode themes
 - 🤖 **[Pro Only]** AI-powered code analysis with smart suggestions & insights
 - ✨ Smart output handling with Success & Error states

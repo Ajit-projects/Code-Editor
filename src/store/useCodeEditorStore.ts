@@ -1,5 +1,4 @@
 import { CodeEditorState } from "./../types/index";
-import { LANGUAGE_CONFIG } from "@/app/(root)/_constants";
 import { create } from "zustand";
 import { Monaco } from "@monaco-editor/react";
 
@@ -82,76 +81,77 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
 
       set({ isRunning: true, error: null, output: "" });
 
-      try {
-        const runtime = LANGUAGE_CONFIG[language].apiRuntime;
-        const response = await fetch(process.env.NEXT_PUBLIC_RUN_CODE!, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            language: runtime.language,
-            version: runtime.version,
-            files: [{ content: code }],
-          }),
-        });
+        try {
+          const response = await fetch(
+            "/api/execute",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type":
+                  "application/json",
+              },
+              body: JSON.stringify({
+                language,
+                code,
+              }),
+            }
+          );
 
-        const data = await response.json();
+          const data = await response.json();
 
-        // console.log("data back from api:", data);
+          if (!response.ok) {
+            throw new Error(
+              data.error ||
+                "Execution failed"
+            );
+          }
 
-        // handle API-level erros
-        if (data.message) {
-          set({ error: data.message, executionResult: { code, output: "", error: data.message } });
-          return;
-        }
+          const error =
+            data.stderr ||
+            data.compileError ||
+            data.error;
 
-        // handle compilation errors
-        if (data.compile && data.compile.code !== 0) {
-          const error = data.compile.stderr || data.compile.output;
-          set({
-            error,
-            executionResult: {
-              code,
-              output: "",
+          if (error) {
+            set({
               error,
-            },
-          });
-          return;
-        }
+              executionResult: {
+                code,
+                output: "",
+                error,
+              },
+            });
+            return;
+          }
 
-        if (data.run && data.run.code !== 0) {
-          const error = data.run.stderr || data.run.output;
+          const output =
+            data.stdout ||
+            data.output ||
+            "";
+
           set({
-            error,
-            executionResult: {
-              code,
-              output: "",
-              error,
-            },
-          });
-          return;
-        }
-
-        // if we get here, execution was successful
-        const output = data.run.output;
-
-        set({
-          output: output.trim(),
-          error: null,
-          executionResult: {
-            code,
             output: output.trim(),
             error: null,
-          },
-        });
-      } catch {
-        // console.log("Error running code:", error);
-        set({
-          error: "Error running code",
-          executionResult: { code, output: "", error: "Error running code" },
-        });
-      } finally {
+            executionResult: {
+              code,
+              output: output.trim(),
+              error: null,
+            },
+          });
+        } catch (error) {
+          const message =
+            error instanceof Error
+              ? error.message
+              : "Execution failed";
+
+          set({
+            error: message,
+            executionResult: {
+              code,
+              output: "",
+              error: message,
+            },
+          });
+        } finally {
         set({ isRunning: false });
       }
     },
