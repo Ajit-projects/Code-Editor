@@ -27,11 +27,16 @@ interface ProfileHeaderProps {
     email: string;
     isPro: boolean;
   };
-  user: UserResource;
+  user: UserResource | null | undefined;
 }
 
 function ProfileHeader({ userStats, userData, user }: ProfileHeaderProps) {
   const starredSnippets = useQuery(api.snippets.getStarredSnippets);
+
+  if (!user || !userData) {
+    return null;
+  }
+
   const STATS = [
     {
       label: "Code Executions",
@@ -86,11 +91,17 @@ function ProfileHeader({ userStats, userData, user }: ProfileHeaderProps) {
             className="absolute inset-0 bg-linear-to-r from-blue-500 to-purple-600 rounded-full 
           blur-xl opacity-50 group-hover:opacity-75 transition-opacity"
           />
-          <img
-            src={user.imageUrl}
-            alt="Profile"
-            className="w-24 h-24 rounded-full border-4 border-gray-800/50 relative z-10 group-hover:scale-105 transition-transform"
-          />
+          {user?.imageUrl ? (
+            <img
+              src={user.imageUrl}
+              alt="Profile"
+              className="w-24 h-24 rounded-full border-4 border-gray-800/50 relative z-10 group-hover:scale-105 transition-transform"
+            />
+          ) : (
+            <div className="w-24 h-24 rounded-full border-4 border-gray-800/50 relative z-10 flex items-center justify-center bg-gray-800">
+              <UserIcon className="w-10 h-10 text-gray-400" />
+            </div>
+          )}
           {userData.isPro && (
             <div
               className="absolute -top-2 -right-2 bg-linear-to-r from-purple-500 to-purple-600 p-2
