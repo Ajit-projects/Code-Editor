@@ -14,10 +14,16 @@ function ShareSnippetDialog({ onClose }: { onClose: () => void }) {
   const handleShare = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const code = getCode();
+
+    if (!code.trim()) {
+      toast.error("Please add some code before sharing the snippet");
+      return;
+    }
+
     setIsSharing(true);
 
     try {
-      const code = getCode();
       await createSnippet({ title, language, code });
       onClose();
       setTitle("");

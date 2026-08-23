@@ -19,6 +19,14 @@ export const createSnippet = mutation({
 
     if (!user) throw new Error("User not found");
 
+    if (!args.title.trim()) {
+      throw new Error("Please enter a snippet title");
+    }
+
+    if (!args.code.trim()) {
+      throw new Error("Please add some code before sharing the snippet");
+    }
+
     const snippetId = await ctx.db.insert("snippets", {
       userId: identity.subject,
       userName: user.name,
