@@ -16,14 +16,14 @@ function ShareSnippetDialog({ onClose }: { onClose: () => void }) {
 
     const code = getCode();
 
-    if (!code.trim()) {
-      toast.error("Please add some code before sharing the snippet");
-      return;
-    }
-
     setIsSharing(true);
 
     try {
+      if (!code.trim()) {
+        toast.error("Please add some code before sharing the snippet");
+        return;
+      }
+
       await createSnippet({ title, language, code });
       onClose();
       setTitle("");
