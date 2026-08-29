@@ -15,6 +15,10 @@ interface ProfileHeaderProps {
     favoriteLanguage: string;
     languageStats: Record<string, number>;
     mostStarredLanguage: string;
+    successfulExecutions: number;
+    failedExecutions: number;
+    timeoutExecutions: number;
+    averageExecutionTime: number;
   };
   userData: {
     _id: Id<"users">;

@@ -7,7 +7,7 @@ import { api } from "../../../convex/_generated/api";
 import NavigationHeader from "@/components/NavigationHeader";
 import ProfileHeader from "./_components/ProfileHeader";
 import ProfileHeaderSkeleton from "./_components/ProfileHeaderSkeleton";
-import { ChevronDown,ChevronRight, Clock, Code, ListVideo, Loader2, Star } from "lucide-react";
+import { ChevronDown, ChevronRight, Clock, Code, ListVideo, Loader2, Star } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -44,7 +44,7 @@ function ProfilePage() {
   } = usePaginatedQuery(
     api.codeExecutions.getUserExecutions,
     {},
-    { initialNumItems: 3}
+    { initialNumItems: 3 }
   );
 
   const userData = useQuery(api.users.getCurrentUser);
@@ -80,9 +80,8 @@ function ProfilePage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as "executions" | "starred")}
-                  className={`group flex items-center gap-2 px-6 py-2.5 rounded-lg transition-all duration-200 relative overflow-hidden cursor-pointer ${
-                    activeTab === tab.id ? "text-blue-400" : "text-gray-400 hover:text-gray-300"
-                  }`}
+                  className={`group flex items-center gap-2 px-6 py-2.5 rounded-lg transition-all duration-200 relative overflow-hidden cursor-pointer ${activeTab === tab.id ? "text-blue-400" : "text-gray-400 hover:text-gray-300"
+                    }`}
                 >
                   {activeTab === tab.id && (
                     <motion.div
@@ -137,6 +136,17 @@ function ProfilePage() {
                               <span className="text-sm font-medium text-white">
                                 {execution.language.toUpperCase()}
                               </span>
+                              <span
+                                className={
+                                  execution.status === "success"
+                                    ? "text-green-400"
+                                    : execution.status === "timeout"
+                                      ? "text-yellow-400"
+                                      : "text-red-400"
+                                }
+                              >
+                                {execution.status}
+                              </span>
                               <span className="text-xs text-gray-400">•</span>
                               <span className="text-xs text-gray-400">
                                 {new Date(execution._creationTime).toLocaleString()}
@@ -144,13 +154,18 @@ function ProfilePage() {
                             </div>
                             <div className="flex items-center gap-2">
                               <span
-                                className={`text-xs px-2 py-0.5 rounded-full ${
-                                  execution.error
-                                    ? "bg-red-500/10 text-red-400"
-                                    : "bg-green-500/10 text-green-400"
-                                }`}
+                                className={`text-xs px-2 py-0.5 rounded-full ${execution.status === "success"
+                                    ? "bg-green-500/10 text-green-400"
+                                    : execution.status === "timeout"
+                                      ? "bg-yellow-500/10 text-yellow-400"
+                                      : "bg-red-500/10 text-red-400"
+                                  }`}
                               >
-                                {execution.error ? "Error" : "Success"}
+                                {execution.status === "success"
+                                  ? "Success"
+                                  : execution.status === "timeout"
+                                    ? "Timeout"
+                                    : "Failed"}
                               </span>
                             </div>
                           </div>
@@ -164,9 +179,8 @@ function ProfilePage() {
                           <div className="mt-4 p-4 rounded-lg bg-black/40">
                             <h4 className="text-sm font-medium text-gray-400 mb-2">Output</h4>
                             <pre
-                              className={`text-sm ${
-                                execution.error ? "text-red-400" : "text-green-400"
-                              }`}
+                              className={`text-sm ${execution.error ? "text-red-400" : "text-green-400"
+                                }`}
                             >
                               {execution.error || execution.output}
                             </pre>

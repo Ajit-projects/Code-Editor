@@ -19,7 +19,15 @@ export default defineSchema ({
         code: v.string(),
         output: v.optional(v.string()),
         error: v.optional(v.string()),
-    }).index("by_user_id", ["userId"]),
+        status: v.union(
+            v.literal("running"),
+            v.literal("success"),
+            v.literal("failed"),
+            v.literal("timeout")
+        ),
+        executionTimeMs: v.optional(v.number()),
+    }).index("by_user_id", ["userId"])
+      .index("by_user_id_and_status", ["userId", "status"]),
 
     snippets: defineTable({
         userId: v.string(),

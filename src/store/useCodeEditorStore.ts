@@ -1,5 +1,6 @@
 import { CodeEditorState } from "./../types/index";
 import { create } from "zustand";
+import { ExecutionResult } from "@/types";
 import { Monaco } from "@monaco-editor/react";
 
 const getInitialState = () => {
@@ -67,95 +68,142 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
         language,
         output: "",
         error: null,
+        executionResult: null,
       });
     },
 
-    runCode: async () => {
+    runCode: async (): Promise<ExecutionResult> => {
       const { language, getCode } = get();
       const code = getCode();
 
-      if (!code) {
-        set({ error: "Please enter some code" });
-        return;
+      // Empty code
+      if (!code.trim()) {
+        const result: ExecutionResult = {
+          code: "",
+          output: "",
+          error: "Please enter some code",
+          status: "failed",
+        };
+
+        set({
+          error: result.error,
+          executionResult: result,
+        });
+
+        return result;
       }
 
-      set({ isRunning: true, error: null, output: "" });
+      set({
+        isRunning: true,
+        error: null,
+        output: "",
+        executionResult: null,
+      });
 
-        try {
-          const response = await fetch(
-            "/api/execute",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type":
-                  "application/json",
-              },
-              body: JSON.stringify({
-                language,
-                code,
-              }),
-            }
-          );
+      try {
+        const response = await fetch("/api/execute", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            language,
+            code,
+          }),
+        });
 
-          const data = await response.json();
+        const data = await response.json();
 
-          if (!response.ok) {
-            throw new Error(
-              data.error ||
-                "Execution failed"
-            );
-          }
+        if (!response.ok) {
+          throw new Error(data.error || "Execution failed");
+        }
 
+        // Handle timeout
+        if (data.status === "timeout") {
+          const error = "Execution timed out after 3 seconds";
+
+          const result: ExecutionResult = {
+            code,
+            output: "",
+            error,
+            status: "timeout",
+          };
+
+          set({
+            output: "",
+            error,
+            executionResult: result,
+          });
+
+          return result;
+        }
+
+        // Handle compilation/runtime failure
+        if (data.status === "failed") {
           const error =
             data.stderr ||
-            data.compileError ||
-            data.error;
+            data.error ||
+            "Execution failed";
 
-          if (error) {
-            set({
-              error,
-              executionResult: {
-                code,
-                output: "",
-                error,
-              },
-            });
-            return;
-          }
-
-          const output =
-            data.stdout ||
-            data.output ||
-            "";
+          const result: ExecutionResult = {
+            code,
+            output: "",
+            error,
+            status: "failed",
+          };
 
           set({
-            output: output.trim(),
-            error: null,
-            executionResult: {
-              code,
-              output: output.trim(),
-              error: null,
-            },
+            output: "",
+            error,
+            executionResult: result,
           });
-        } catch (error) {
-          const message =
-            error instanceof Error
-              ? error.message
-              : "Execution failed";
 
-          set({
-            error: message,
-            executionResult: {
-              code,
-              output: "",
-              error: message,
-            },
-          });
-        } finally {
-        set({ isRunning: false });
+          return result;
+        }
+
+        // Successful execution
+        const output = data.stdout || "";
+
+        const result: ExecutionResult = {
+          code,
+          output: output.trim(),
+          error: null,
+          status: "success",
+        };
+
+        set({
+          output: result.output,
+          error: null,
+          executionResult: result,
+        });
+
+        return result;
+      } catch (error) {
+        const executionError =
+          error instanceof Error
+            ? error.message
+            : "Execution failed";
+
+        const result: ExecutionResult = {
+          code,
+          output: "",
+          error: executionError,
+          status: "failed",
+        };
+
+        set({
+          output: "",
+          error: executionError,
+          executionResult: result,
+        });
+
+        return result;
+      } finally {
+        set({
+          isRunning: false,
+        });
       }
     },
   };
-});
-//latest execution results
-export const getExecutionResult = () => useCodeEditorStore.getState().executionResult;
+}
+);

@@ -9,6 +9,13 @@ export const saveExecution = mutation({
     // we could have either one of them, or both at the same time
     output: v.optional(v.string()),
     error: v.optional(v.string()),
+    status: v.union(
+      v.literal("running"),
+      v.literal("success"),
+      v.literal("failed"),
+      v.literal("timeout")
+    ),
+    executionTimeMs: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -94,8 +101,41 @@ export const getUserStats = query({
       ? languages.reduce((a, b) => (languageStats[a] > languageStats[b] ? a : b))
       : "N/A";
 
+    const successfulExecutions = executions.filter(
+      (execution) => execution.status === "success"
+    ).length;
+
+    const failedExecutions = executions.filter(
+      (execution) => execution.status === "failed"
+    ).length;
+
+    const timeoutExecutions = executions.filter(
+      (execution) => execution.status === "timeout"
+    ).length;
+
+    const executionTimes = executions
+      .map((execution) => execution.executionTimeMs)
+      .filter(
+        (time): time is number =>
+          typeof time === "number"
+      );
+
+    const averageExecutionTime =
+      executionTimes.length > 0
+        ? Math.round(
+          executionTimes.reduce(
+            (sum, time) => sum + time,
+            0
+          ) / executionTimes.length
+        )
+        : 0;
+
     return {
       totalExecutions: executions.length,
+      successfulExecutions,
+      failedExecutions,
+      timeoutExecutions,
+      averageExecutionTime,
       languagesCount: languages.length,
       languages: languages,
       last24Hours,

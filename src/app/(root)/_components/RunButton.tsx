@@ -1,6 +1,6 @@
 "use client";
 
-import { getExecutionResult, useCodeEditorStore } from "@/store/useCodeEditorStore";
+import { useCodeEditorStore } from "@/store/useCodeEditorStore";
 import { useUser } from "@clerk/nextjs";
 import { useMutation } from "convex/react";
 import { motion } from "framer-motion";
@@ -13,17 +13,20 @@ function RunButton() {
   const saveExecution = useMutation(api.codeExecutions.saveExecution);
 
   const handleRun = async () => {
-    await runCode();
-    //latest changes
-    const result = getExecutionResult();
+    try {
+      const result = await runCode();
 
-    if (user && result) {
+      if (!user) return;
+
       await saveExecution({
         language,
         code: result.code,
         output: result.output || undefined,
         error: result.error || undefined,
+        status: result.status,
       });
+    } catch (error) {
+      console.error("Failed to save execution:", error);
     }
   };
 
@@ -33,14 +36,14 @@ function RunButton() {
       disabled={isRunning}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      className={`
-        group relative inline-flex items-center gap-2.5 px-5 py-2.5
+      className="
+        group relative inline-flex items-center gap-2.5
+        px-5 py-2.5
         disabled:cursor-not-allowed
         focus:outline-none
         cursor-pointer
-      `}
+      "
     >
-      {/* bg wit gradient */}
       <div className="absolute inset-0 bg-linear-to-r from-blue-600 to-blue-500 rounded-xl opacity-100 transition-opacity group-hover:opacity-90" />
 
       <div className="relative flex items-center gap-2.5">

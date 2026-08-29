@@ -35,24 +35,24 @@ export interface ExecutionResult {
   code: string;
   output: string;
   error: string | null;
+  status: "success" | "failed" | "timeout";
 }
 
 export interface CodeEditorState {
   language: string;
+  fontSize: number;
+  theme: string;
   output: string;
   isRunning: boolean;
   error: string | null;
-  theme: string;
-  fontSize: number;
   editor: Monaco | null;
   executionResult: ExecutionResult | null;
-
-  setEditor: (editor: Monaco) => void;
   getCode: () => string;
-  setLanguage: (language: string) => void;
+  setEditor: (editor: Monaco) => void;
   setTheme: (theme: string) => void;
   setFontSize: (fontSize: number) => void;
-  runCode: () => Promise<void>;
+  setLanguage: (language: string) => void;
+  runCode: () => Promise<ExecutionResult>;
 }
 
 export interface Snippet {
