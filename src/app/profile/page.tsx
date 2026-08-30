@@ -136,17 +136,6 @@ function ProfilePage() {
                               <span className="text-sm font-medium text-white">
                                 {execution.language.toUpperCase()}
                               </span>
-                              <span
-                                className={
-                                  execution.status === "success"
-                                    ? "text-green-400"
-                                    : execution.status === "timeout"
-                                      ? "text-yellow-400"
-                                      : "text-red-400"
-                                }
-                              >
-                                {execution.status}
-                              </span>
                               <span className="text-xs text-gray-400">•</span>
                               <span className="text-xs text-gray-400">
                                 {new Date(execution._creationTime).toLocaleString()}
@@ -155,10 +144,10 @@ function ProfilePage() {
                             <div className="flex items-center gap-2">
                               <span
                                 className={`text-xs px-2 py-0.5 rounded-full ${execution.status === "success"
-                                    ? "bg-green-500/10 text-green-400"
-                                    : execution.status === "timeout"
-                                      ? "bg-yellow-500/10 text-yellow-400"
-                                      : "bg-red-500/10 text-red-400"
+                                  ? "bg-green-500/10 text-green-400"
+                                  : execution.status === "timeout"
+                                    ? "bg-yellow-500/10 text-yellow-400"
+                                    : "bg-red-500/10 text-red-400"
                                   }`}
                               >
                                 {execution.status === "success"
