@@ -36,6 +36,7 @@ export interface ExecutionResult {
   output: string;
   error: string | null;
   status: "success" | "failed" | "timeout";
+  executionTimeMs: number;
 }
 
 export interface CodeEditorState {

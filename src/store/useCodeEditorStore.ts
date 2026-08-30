@@ -83,6 +83,7 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
           output: "",
           error: "Please enter some code",
           status: "failed",
+          executionTimeMs: 0,
         };
 
         set({
@@ -100,6 +101,9 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
         executionResult: null,
       });
 
+      // Start execution timer
+      const startTime = performance.now();
+
       try {
         const response = await fetch("/api/execute", {
           method: "POST",
@@ -114,6 +118,10 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
 
         const data = await response.json();
 
+        const executionTimeMs = Math.round(
+          performance.now() - startTime
+        );
+
         if (!response.ok) {
           throw new Error(data.error || "Execution failed");
         }
@@ -127,6 +135,7 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
             output: "",
             error,
             status: "timeout",
+            executionTimeMs,
           };
 
           set({
@@ -150,6 +159,7 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
             output: "",
             error,
             status: "failed",
+            executionTimeMs,
           };
 
           set({
@@ -169,6 +179,7 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
           output: output.trim(),
           error: null,
           status: "success",
+          executionTimeMs,
         };
 
         set({
@@ -179,6 +190,10 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
 
         return result;
       } catch (error) {
+        const executionTimeMs = Math.round(
+          performance.now() - startTime
+        );
+
         const executionError =
           error instanceof Error
             ? error.message
@@ -189,6 +204,7 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
           output: "",
           error: executionError,
           status: "failed",
+          executionTimeMs,
         };
 
         set({

@@ -24,6 +24,7 @@ function RunButton() {
         output: result.output || undefined,
         error: result.error || undefined,
         status: result.status,
+        executionTimeMs: result.executionTimeMs,
       });
     } catch (error) {
       console.error("Failed to save execution:", error);
